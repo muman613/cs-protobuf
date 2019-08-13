@@ -1,0 +1,255 @@
+//TODO: rename to ControllerMeta
+//maybe need a machine_id?
+syntax = "proto2";
+
+//TOOD: move version?
+message Version {
+  required uint32 major = 1;
+  required uint32 minor = 2;
+  required uint32 build_num = 3;
+  required string date = 4;
+  required string time = 5; 
+}
+
+enum MOTOR_POSITIONS {
+  SOFT_LIMIT_UP = 0;
+  SOFT_LIMIT_DOWN = 1;
+  HARD_LIMIT_UP = 2;
+  HARD_LIMIT_DOWN = 4;
+  HOME = 5;
+}
+
+enum PISTON_DRIVE_MODE {
+  CONSTANT = 0;
+  PID = 1;
+  NUM_DRIVE_MODES = 2;
+}
+
+enum PISTON_MOTORS
+{
+  PISTON_UPPER = 0;
+  PISTON_LOWER = 1;
+  NUM_PISTON_MOTORS = 2;
+};
+
+enum PISTON_DIRECTION {
+  PISTON_UP = 0;
+  PISTON_DOWN = 1;
+}
+
+enum SWEEP {
+  UNCAL = 0;
+  MOVING_IN = 2;
+  MOVING_OUT = 3;
+  AT_OUT = 4;
+  AT_IN = 5;
+  SWEEP_FAULT = 6;
+}
+
+enum EVENT_TYPE {
+  LOG = 0;
+  INSTRUCTION = 1;
+  RECIPE = 2;
+}
+
+enum VALVES {
+  VALVE_CLEAN = 0;
+  VALVE_DISPENSE = 1;
+  VALVE_UNUSED = 2;
+  VALVE_HOT = 3;
+  VALVE_COLD = 4;
+}
+
+enum GRINDERS {
+  GRINDER_0 = 0;
+  GRINDER_1 = 1;
+  GRINDER_2 = 2;
+  GRINDER_3 = 3;
+}
+
+enum SWITCHES {
+  FRONT_PANEL = 0;
+  SERVICE_MODE = 1;
+  GROUND_BIN_OUT = 2;
+}
+
+enum PUMP_STATE
+{
+  PUMP_INHIBIT = 0;
+  PUMP_ON = 1;
+  PUMP_OFF = 2;
+}
+
+enum VALVE_STATE
+{
+  VALVE_INHIBIT = 0;
+  VALVE_OPEN = 1;
+  VALVE_CLOSED = 2;
+};
+
+message Event {
+  required uint32 unix_time = 1;
+  required uint32 sub_seconds = 2;
+  required EVENT_TYPE type = 3;
+  required uint32 event_id = 4; //event id can map to instructions, log event, etc
+}
+
+message DrinkStatus {
+  required uint32 extraction_time_ms = 1;
+   
+}
+
+enum MACHINE_STATE {
+  BOOTUP = 0;
+  READY = 1;
+  EXECUTING = 2;
+  UPDATE_READY = 3;
+  UPDATE_BUSY = 4;
+  TEST_ROUTINE = 5;
+  FAULTED = 6;
+  RESETTING = 7;
+}
+
+enum BOOTUP_STATE{
+  HW_INIT = 0;
+  HW_BOOT_TEST = 1;
+  SW_INIT = 2;
+  SW_TEST = 3;
+  BOOTUP_FAILED = 4;
+  BOOTUP_SUCCESS = 5;
+}
+
+enum WARMUP_STATE{
+  WARMING_UP = 0;
+  WARMUP_FAILED = 1;
+  WARMUP_SUCCESS = 2;
+}
+
+enum DRINK_STATE{
+  DRINK_IDLE = 0;
+  DRINK_BUSY = 1;
+  DRINK_FAILED = 2;
+  DRINK_SUCCESS = 3;
+  DRINK_CANCELLED = 4;
+}
+
+enum UPDATE_STATE{
+  UPDATE_IDLE = 0;
+  GET_READY = 1;
+  WAIT_FOR_DATA = 2;
+  WRITE_CHUNK = 3;
+  COMMIT = 4;
+  REVERT = 5;
+  UPDATE_FAILED = 6;
+  UPDATE_SUCCESS = 7;
+  WAIT_TIMEOUT = 8;
+}
+
+message GroupMotorStatus {
+  required float upper_piston_ma = 1;
+  required float upper_piston_position = 2;
+  required float lower_piston_ma = 3;
+  required float lower_piston_position = 4;
+  required float temperature = 5;
+}
+
+message PumpStatus {
+  required float pre_pressure_psi = 1;
+  required float nozzle_pressure_psi = 2;
+  required float nitro_water_ml = 3;
+  required float tank_temp_c = 4;
+  required float post_pressure_psi = 5;
+}
+
+message GrinderStatus {
+required   uint32 grind_encoder_count = 8;
+}
+
+message ValvesState {
+  required bool clean_open = 1;
+  required bool dispense_open = 2;
+  required bool unused_open = 3;
+  required bool hot_water_open = 4;
+  required bool cold_water_open = 5;
+}
+
+message SwitchStatus {
+  required bool front_panel_open = 1;
+  required bool service_mode = 2;
+  required bool ground_bin_out = 3;
+}
+
+message ControllerPCB {
+  required float node_3_3 = 1;
+  required float node_5 = 2;
+  required float node_24 = 3;
+  required float pcb_temp = 4;
+  optional float input_vac = 5;
+}
+
+// these are any warnings or faults that would prevent the machine from nominal operations
+message BuiltInTests {
+// PCB level warnings
+  required bool invalid_recipe_file = 1;
+  required bool node_3_3_voltage_fault = 2;
+  required bool invalid_update = 3;
+  required bool internal_flash_fault = 4;
+  required bool eeprom_fault = 5;
+  required bool valve_feedback_fault = 6;
+  required bool invalid_recipe_id = 7;
+  required bool node_5_voltage_fault = 8;
+  required bool node_24_voltage_fault = 9;
+
+// Water System warnings
+  required bool water_level_low  = 40;
+  required bool water_temp_fault = 41;
+  required bool pump_overcurrent_fault = 42;
+  required bool brew_feedback_fault = 43;
+  required bool clean_feedback_fault = 44;
+  required bool hot_feedback_fault = 45;
+  required bool drain_feedback_fault = 46;
+  required bool dispense_feedback_fault = 47;
+  required bool water_pressure_low = 48;
+  required bool low_hot_flow = 49;
+  required bool low_cold_flow = 50;
+  required bool tank_fill_timeout = 51;
+  required bool tank_warm_timeout = 52;
+
+
+// Grinder warnings
+  required bool grinder_0_low_beans = 80;
+  required bool grinder_1_low_beans = 81;
+  required bool grinder_2_low_beans = 82;
+  required bool grinder_3_low_beans = 83;
+  required bool grinder_0_low_speed = 84;
+  required bool grinder_1_low_speed = 85;
+  required bool grinder_2_low_speed = 86;
+  required bool grinder_3_low_speed = 87;
+
+// Group warnings
+  required bool upper_piston_ic_fault = 120;
+  required bool lower_piston_ic_fault = 121;
+  required bool upper_piston_overcurrent = 122;
+  required bool lower_piston_overcurrent = 123;
+  required bool lower_uncalibrated = 124;
+  required bool sweep_uncalibrated = 125;
+  required bool sweep_ic_fault = 126;
+  required bool group_temp_fault = 127;
+  required bool upper_uncalibrated = 128;
+  required bool lower_drive_timeout = 129;
+  required bool upper_drive_timeout = 130;
+  required bool upper_drive_failed = 131;
+  required bool lower_drive_failed = 132;
+  required bool group_warm_timeout = 133;
+
+// Inhibit warnings
+  required bool hw_inhibited = 160;
+  required bool sw_inhibited = 161;
+
+// System level warnings
+  required bool recipe_failed = 200;
+  required bool update_failed = 201;
+  required bool recipe_cancelled = 202;
+}
+
+

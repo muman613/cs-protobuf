@@ -1,0 +1,14 @@
+
+Recipe.name max_size:20
+Recipe.instructions max_count:20
+DrinkTuneList.coffee_params max_count: 50
+DrinkTuneList.name max_size: 30
+Statistics.drink_stats max_count: 100
+DrinkStatistics.total_count_history max_count:100
+MachineStatistics.total_drinks_history max_count:100
+BeanInfo.name max_size:30
+BeanInfo.description max_size:150
+BeanInfo.color max_size:15
+DrinkTuneList.bean_infos max_count:100
+BeanInfo.ui_name max_size:30
+//MachineStatistics.hourly_stats max_count:8760

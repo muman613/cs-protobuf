@@ -1,0 +1,316 @@
+syntax = "proto2";
+import "Controller.proto";
+import "XpressHw.proto";
+import "Recipe.proto";
+
+//NOTE: might not be portable to other languages besides C/C++/C#
+enum PreambleConstants {
+  PREAMBLE_NONE = 0;
+  PREAMBLE_HIGH = 0xDEADBEE;
+  PREAMBLE_LOW = 0xBABEAA5;
+}
+
+message Preamble {
+  required uint32 packet_id_high = 1;
+  required uint32 packet_id_low = 2;
+  required uint32 header_length = 3;
+}
+
+message Header {
+  required uint32 header_crc = 1;
+  required uint32 body_length = 2;
+  required NODE_ENUM src_node = 3;
+  required NODE_ENUM dest_node = 4;
+  required uint32 sequence_num = 5;
+  required uint32 packet_num = 6;
+  required uint32 total_num = 7;
+  required uint32 body_crc = 8;
+}
+
+message Packet {
+  required Preamble preamble = 1;
+  required Header header = 2;
+  required Record record = 3;
+}
+
+enum LOG_LEVEL {
+  DEBUG = 0;
+  INFO = 1;
+  WARNING = 2;
+  ERROR = 3;
+}
+
+message LogMsg {
+  required LOG_LEVEL level = 1;
+  required NODE_ENUM node = 2;
+  required string str_message = 3;
+  required uint32 unix_time = 4;
+}
+
+message RecordList {
+  repeated Record records = 1;
+}
+
+message RecordLists {
+  repeated RecordList record_lists = 1;
+}
+
+message Record {
+  required uint32 id = 1;
+  required ControllerCommand command = 2;
+  required uint32 unix_time = 3;
+
+  //maybe use oneof
+  oneof payload {
+    Recipe recipe = 4;
+	  XpressHWStatus xpress_status = 5;
+    ControllerStatus status = 6;
+	  Version controller_version = 7;
+    Order order = 8;
+	  LogMsg log_msg = 9;
+    PressureLUT pressure_lut = 10;
+    Binary binary = 11;
+    EthConfig eth_config = 15;
+    Instruction instruction = 16;
+    TestRoutineControl test_routine = 17;
+  }
+
+  required uint64 unix_time_ms = 18;
+  optional float setpoint = 19;
+  optional bool sw_inhibit = 20;
+  optional bool dispense_on = 21;
+  optional bool nitro_on = 22;
+}
+
+message Binary
+{
+  required bytes raw_bin = 1;
+}
+
+enum ControllerCommand {
+  CMD_INVALID = 0;
+  CMD_REPORT_VERSION = 1;
+	CMD_REPORT_STATUS = 2;
+
+  CMD_UPDATE_RECIPE = 3;
+  CMD_LOAD_APP = 4;
+  CMD_SAVE_RECIPE = 5;
+
+  CMD_SET_TIME = 6;
+
+  CMD_EXEC_INSTRUCTION = 7;
+  CMD_EXEC_RECIPE = 8;
+  CMD_KICK_CONTROLLER = 9;
+
+  CMD_UPDATE_TEST_CONTROL = 10;
+  CMD_CANCEL_RECIPE = 14;
+  CMD_PAUSE_RECIPE = 15;
+  CMD_STEP_RECIPE = 16;
+  CMD_RESUME_RECIPE = 17;
+  CMD_SET_GROUNDS_BIN_BYPASS = 18;
+  CMD_CLEAR_GROUNDS_BIN_BYPASS = 19;
+  CMD_START_UPDATE_APP = 20;
+  CMD_WRITE_UPDATE_CHUNK = 21;
+  CMD_COMMIT_FW = 22;
+  CMD_SW_INHIBIT = 23;
+  CMD_SW_UNINHIBIT = 24;
+  CMD_HOT_WATER = 25;
+  CMD_RESET_CONTROLLER = 26;
+  CMD_ABORT_UPDATE = 27;
+  CMD_RESET_CHUNK = 28;
+}
+
+enum NODE_ENUM
+{
+  NODE_UNKNOWN = 0;
+  NODE_TOUCH = 1;
+  NODE_CONTROLLER = 2;
+  NODE_XPRESS = 3;
+  NODE_EXTERNAL = 4;
+};
+
+enum UICommands {
+  CMD_REPORT_STATISTIC = 0;
+}
+
+message Order {
+ required uint32 order_id = 1;
+ required uint32 recipe_id = 2;
+}
+
+message EthConfig {
+  required string ip = 1;
+  required string netmask = 2;
+  required string gateway = 3;
+  required bool dhcp = 4;
+  required string ssid = 5;
+  required string psk = 6;
+  required bool wifi_enabled = 7;
+}
+
+message TestRoutineControl
+{
+  required bool clean_open = 1;
+  required bool unused_open = 2;
+  required bool cold_valve_open = 3;
+  required bool drain_valve_open = 4;
+  required bool dispense_valve_open = 5;
+  required float pump_pwm = 6;
+  required bool pump_on = 7;
+  required float piston_pwm = 8;
+  required bool upper_up = 9;
+  required bool lower_up = 10;
+  required bool upper_on = 11;
+  required bool lower_on = 12;
+  required bool sweep_out = 13;
+  required bool sweep_on = 14;
+  required GRINDERS grinder_select = 15;
+  required bool grinder_on = 16;
+  required bool tank_heater_on = 17;
+  required bool group_heater_on = 18;
+  required bool zero_upper = 19;
+  required bool zero_lower = 20;
+  required bool zero_grinder = 21;
+  required float valve_pwm = 22;
+  required float valve_freq = 23;
+}
+
+message MachineSettings {
+  required bool has_espresso = 1;
+  required bool has_milk = 2;
+  required bool has_flavors = 3;
+  required uint32 num_grinders = 4;
+  required uint32 num_flavors = 5;
+  required GRINDERS default_grinder = 6;
+  required uint32 default_size = 7;
+  required uint32 grinder_1_bean_id = 8;
+  required uint32 grinder_2_bean_id = 9;
+  required uint32 grinder_3_bean_id = 10;
+  required uint32 grinder_4_bean_id = 11;
+  required uint32 ui_theme_id = 12;
+  required string serial_number = 13;
+  required bool grounds_bypassed = 14;
+  required uint32 pm_period_days = 15;
+  required uint32 pm_period_drinks = 16;
+  required IOTConfig iot_config = 18;
+  required EthConfig eth_config = 19;
+  required float bin_full_grams = 20;
+  required bool dispense_hot_water = 21;
+  required bool use_room = 22;
+  required bool use_bold = 23;
+  required string name = 24;
+  required string size_1_name = 25;
+  required string size_2_name = 26;
+  required string size_3_name = 27;
+  required string size_4_name = 28;
+  required uint32 num_sizes = 29;
+  required string locale = 30;
+  required string time_zone = 31;
+  required bool carafe_enabled = 32;
+  required uint32 num_carafe_sizes = 33;
+  required string carafe_size_1_name = 34;
+  required string carafe_size_2_name = 35;
+  required string carafe_size_3_name = 36;
+  required bool show_caffeine = 37;
+  required bool show_roast = 38;
+  required bool use_low_beans = 39;
+  required bool use_pressure_trans = 40;
+  required OptionParameters option_params = 41;
+  repeated CarafeParameters carafe_params = 42;
+  required float clean_ml = 43;
+  required float product_ml = 44;
+  required float filter_fault_diff = 45;
+  required uint32 soak_time_s = 46;
+  required uint32 log_period_s = 47;
+  required float pre_pressure_offset = 48;
+  required uint32 machine_serial_num = 49;
+  optional string edge_ip = 50;
+}
+
+message CoffeeSWStatus {
+  required bool CalibratedFailed = 1;
+  required bool DrinkFailed = 2;
+  required bool ControllerConnected = 8;
+  required bool MqttServerConnected = 9;
+}
+
+message CoffeeHWStatus {
+  required GroupMotorStatus group_mtr = 1;
+  required PumpStatus pump = 2;
+  required GrinderStatus grinder = 3;
+  required ValvesState valve = 4;
+  required SwitchStatus switches = 5;
+  required ControllerPCB pcb = 6;
+}
+
+
+message ControllerStatus {
+  required CoffeeHWStatus hw_status = 1;
+  required CoffeeFWStatus fw_status = 2;
+  required Version fw_version = 3;
+}
+
+message CoffeeFWStatus {
+  required MachineStatus machine = 1;
+  required BuiltInTests bits = 2;
+  required bool GroundsBypassed = 3;
+  required float tank_setpoint_c = 4;
+  required float group_setpoint_c = 5;
+  required float cold_setpoint = 6;
+  required float hot_setpoint = 7;
+  required float flow_rate_ml_per_sec = 8;
+
+}
+
+message MachineStatus {
+  required MACHINE_STATE machine_state = 1;
+  required Instruction current_instruction = 2;
+  required uint32 current_recipe_id = 3;
+  required Order current_order = 4;
+  required Order last_order_completed = 5;
+  required uint32 recipe_status = 6;
+  required uint32 update_bytes_received = 7;
+  required uint32 bootloader_status = 8;
+  optional uint32 current_inst_index = 9;
+}
+
+message IOTConfig {
+  required string server = 1;
+  required uint32 port = 2;
+  required string project_id = 3;
+  required string registry = 4;
+  required string region = 5;
+  required bool ntp_enabled = 6;
+  required string ntp_server = 7;
+  required uint32 ntp_port = 8;
+  required bool iot_enabled = 9;
+}
+
+message edgeConfig {
+
+}
+
+message SwControl {
+  required bool grounds_bin_bypass = 1;
+  required bool hot_water_on = 2;
+  
+}
+
+message CarafeParameters
+{
+  required Size size = 1;
+  required uint32 num_large_drinks = 2;
+  required uint32 num_extra_large_drinks = 3;
+}
+
+message Settings
+{
+  required float clean_ml = 1;
+  required float product_ml = 2;
+  required float fil= 3;
+  required float nitrogen_fault_diff = 4;
+//  required float nitrogen_psi_setpoint = 5;
+}
+
+
+

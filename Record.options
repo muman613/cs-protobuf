@@ -1,0 +1,28 @@
+
+LogMsg.str_message max_size:400
+Binary.raw_bin max_size:704
+MachineSettings.size_1_name max_size:30
+MachineSettings.size_2_name max_size:30
+MachineSettings.size_3_name max_size:30
+MachineSettings.size_4_name max_size:30
+MachineSettings.carafe_size_1_name max_size:30
+MachineSettings.carafe_size_2_name max_size:30
+MachineSettings.carafe_size_3_name max_size:30
+MachineSettings.serial_number max_size:30
+MachineSettings.name max_size:30
+MachineSettings.locale max_size:30
+MachineSettings.time_zone max_size:50
+MachineSettings.edge_ip max_size:50
+IOTConfig.server max_size:100
+IOTConfig.port max_size:100
+IOTConfig.project_id max_size:100
+IOTConfig.registry max_size:100
+IOTConfig.region max_size:100
+IOTConfig.ntp_server max_size:17
+EthConfig.ssid max_size:100
+EthConfig.psk max_size:100
+EthConfig.ip max_size:17
+EthConfig.netmask max_size:17
+EthConfig.gateway max_size:17
+RecordList.records max_count:100
+MachineSettings.carafe_params max_count: 10

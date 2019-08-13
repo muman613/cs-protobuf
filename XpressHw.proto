@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+message XpressHWStatus {
+  XpressValveStatus valve = 1;
+  XpressSwitchStatus switches = 2;
+  XpressTempStatus temp = 3;
+  XpressPumpStatus pump = 4;
+  uint32 unix_time = 5;
+}
+
+message XpressValveStatus {
+  bool valve_center_steam_open = 1;
+  bool valve_left_steam_open = 2;
+  bool valve_right_steam_open = 3;
+  bool valve_steam_fill_open = 4;
+  bool valve_steam_purge_open = 5;
+  bool valve_milk_open = 6;
+  bool valve_alt_milk_open = 7;
+  bool valve_latte_air_open = 8;
+  bool valve_latte_cap_open = 9;
+}
+
+message XpressSwitchStatus {
+  bool switch_left_panel_open = 1;
+  bool switch_upper_steam_wet = 2;
+  bool switch_lower_steam_wet = 3;
+  bool switch_steam_temp_high_limit = 4;
+}  
+
+message XpressTempStatus {
+  float steam_tank_temp_c = 1;
+  float steam_wand_temp_c = 2;
+  float refer_inside_temp_c = 3;
+  float refer_cold_sink_temp_c = 4;
+  float refer_hot_sink_temp_c = 5;
+}
+
+message XpressPumpStatus {
+  float milk_front_pump_ma = 1;
+  float milk_rear_pump_ma = 2;
+  float syrup_pump_1_ma = 3;
+  float syrup_pump_2_ma = 4;
+  float syrup_pump_3_ma = 5;
+  float syrup_pump_4_ma = 6;
+  float syrup_pump_5_ma = 7;
+  float syrup_pump_6_ma = 8;
+  float syrup_pump_7_ma = 9;
+}

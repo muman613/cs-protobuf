@@ -1,0 +1,6 @@
+Version.date max_size = 15;
+Version.time max_size = 15;
+Recipe.name max_size = 20;
+Recipe.instructions max_count = 20;
+LogMsg.str_message max_size = 400;
+Record.payload.raw_bin max_size = 700;

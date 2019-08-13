@@ -1,0 +1,308 @@
+syntax = "proto2";
+import "Controller.proto";
+
+enum Room {
+  NO_ROOM = 0;
+  ROOM = 1;
+  EXTRA_ROOM = 2;
+}
+
+enum Size {
+  SIZE_1 = 0;
+  SIZE_2 = 1;
+  SIZE_3 = 2;
+  SIZE_4 = 3;
+  CARAFE_SIZE_1 = 4;
+  CARAFE_SIZE_2 = 5;
+  CARAFE_SIZE_3 = 6;
+}
+
+enum Bold {
+  NO_BOLD = 0;
+  BOLD = 1;
+  EXTRA_BOLD = 2;
+}
+
+enum Temperature {
+  HOT_DRINK = 0;
+  ICED_DRINK = 1;
+}
+
+enum UOM {
+  UOM_NONE = 0;
+  UOM_GRAMS = 1;
+  UOM_LB = 2;
+  UOM_ML = 3;
+  UOM_OZ = 4;
+  UOM_PERCENTAGE = 5;
+  UOM_COUNT = 6;
+  UOM_MILSEC = 7;
+  UOM_STRING = 8;
+  UOM_ENUM = 9;
+  UOM_MILS = 10;
+}
+
+enum CONDITION
+{
+  INVALID_CONDITION = 0;
+  UPPER_PISTON_SETTLE = 1;
+  LOWER_PISTON_SETTLE = 2;
+  SWEEP_SETTLE = 3;
+  GRIND_DONE = 4;
+  HOT_FLOW_DONE = 5;
+  COLD_FLOW_DONE = 6;
+  TIMEOUT = 7;
+  PUMP_DONE = 8;
+}
+
+enum INSTRUCTIONS
+{
+  INVALID_TEMPLATE = 0;
+  EXECUTE_RECIPE = 1;
+  SET_UPPER_POS_DRIVE = 2;
+  SET_LOWER_POS_DRIVE = 3;
+  LOOP_FOR = 4;
+  GOTO = 5;
+  SET_VALVE = 6;
+  WAIT_FOR = 7;
+  GRIND_FOR = 8;
+  PUMP_FOR = 9;
+  SET_TANK_TEMP = 11;
+  ZERO_LOWER = 12;
+  ZERO_UPPER = 13;
+  SET_UPPER_PWM = 14;
+  SET_LOWER_PWM = 15;
+  SET_SWEEP_POS = 16;
+  RESET_HOT_FLOW = 17;
+  RESET_COLD_FLOW = 18;
+  PUMPLESS_FOR = 19;
+  GRIND_FOR_TIME = 20;
+  PUMP_FOR_TIME = 21;
+  RESET_PUMP_AND_GRINDER = 22;
+  SET_VALVE_PWM = 23;
+};
+
+enum RECIPES {
+  RECIPE_INVALID = 0;
+  RECIPE_PUMP_CLEAN = 1;
+  RECIPE_BREW = 2;
+  RECIPE_PUMP_PRODUCT = 3;
+  RECIPE_PAUSE = 4;
+};
+
+message Options {
+  required Size size = 1;
+  required Room roomness = 2;
+  required Bold boldness = 3;
+  required uint32 grinder = 4;
+  required Temperature temp = 5;
+}
+
+message HourlyStats {
+  required uint32 product_used_ml = 1;
+  required uint32 tank_weight_grams = 2;
+  required uint32 clean_status = 3;
+  required float pressure_drop_psi = 4;
+  required float cabinet_temp_c = 5;
+  required uint32 unix_timestamp = 6;
+}
+
+message MachineStatistics {
+  required uint32 bootup_count = 1;
+  required uint32 brew_clean_count = 2;
+  required uint32 milk_clean_count = 3;
+  required uint32 last_brew_clean_unix = 4;
+  required uint32 last_milk_clean_unix = 5;
+  required uint32 drinks_since_pm = 6;
+  required uint32 drinks_since_bin_clean = 7;
+  required uint32 drinks_since_brew_clean = 8;
+  required bool setup_executed = 9;
+  required uint32 last_pm_unix = 10;
+  required float dispensed_coffee_grams = 11;
+  required float dispensed_water_ml = 12;
+  required uint32 total_drinks = 13;
+  repeated uint32 total_drinks_history = 14;
+  required uint32 dispensed_coffee_since_bin_pull = 15;
+//  repeated HourlyStats hourly_stats = 16;
+  required float total_dispensed_ml = 17;
+  required float ml_since_clean = 18;
+  required uint32 last_filter_unix = 19;
+  required uint32 last_tower_unix = 20;
+}
+
+message Statistics {
+  required MachineStatistics machine_stats = 1;
+  repeated DrinkStatistics drink_stats = 2;
+}
+
+message DrinkStatistics {
+  required uint32 recipe_id = 1;
+  required Options option = 2;
+  required uint32 day_count = 3;
+  required uint32 total_count = 4;
+  repeated uint32 total_count_history = 5;
+}
+
+
+message Recipe {
+  required uint32 id = 1;
+  required string name = 2;
+  repeated Instruction instructions = 4;
+}
+
+message CoffeeParameters
+{
+  required Temperature temperature = 1;
+  required Size size = 2;
+//  required GRINDERS grinder = 3;
+  required float grind_grams = 4;
+  required float presoak_vol_ml = 5;
+  required float presoak_delay_ms = 6;
+  required float dwell_time_ms = 7;
+  required float hotbrew_vol_ml = 8;
+  required float coldbrew_vol_ml = 9;
+  required float chamber_vol_percent = 10;
+  required float tank_temp_c = 11;
+  required float brew_psi = 12;
+  required uint32 bean_id = 13;
+}
+
+message BeanInfo
+{
+  required string name = 1;
+  required string description = 2;
+  required float caffeeine_level = 3;
+  required float roast_level = 4;
+  required string color = 5;
+  required string ui_name = 6;
+}
+
+message OptionParameters
+{
+  required float with_room_vol_percentage = 1;
+  required float extra_room_vol_percentage = 2;
+  required float bold_grams_percentage = 3;
+  required float extra_bold_grams_percentage = 4;
+}
+
+message DrinkTuneList
+{
+  repeated CoffeeParameters coffee_params = 1;
+  repeated BeanInfo bean_infos = 5;
+//  repeated CarafeParameters carafe_params = 2;
+//  required OptionParameters option_params = 3;
+  required string name = 4;
+}
+
+message MilkParameters
+{
+  required float cold_volume_ml = 1;
+  required float steamed_volume_ml = 2;
+  required float foamed_volume_ml = 3;
+}
+
+message FlavorParameters
+{
+  required uint32 pump_num = 1;
+  required float volume_ml = 2;
+}
+
+message PressureLUTVal {
+  required uint32 time_ms = 1;
+  required float pressure_psi = 2;
+}
+
+message PressureLUT {
+  required int32 id = 1;
+//  repeated PressureLUTVal pressure_vals = 2 [(nanopb).max_count = 50];
+}
+/*
+message InstructionSet {
+  required string name = 1 [(nanopb).max_size = 20];
+  required string description = 2 [(nanopb).max_size = 20];
+  repeated uint32 instructions = 3  [(nanopb).max_count = 30]; // can point to instruction or instruction set
+}
+*/
+message SetValveArg{
+  required uint32 valves_state = 1;
+}
+
+message LoopArg {
+  required uint32 loop_count = 1;
+  required uint32 end_loop_index = 2;
+}
+
+message WaitForArg {
+  required uint32 conditions_bitmask = 1;
+  required uint32 timeout_ms = 2;
+}
+
+message GrinderArg {
+  required GRINDERS grinder = 1;
+  required float grams = 2;
+}
+
+message PumpArg {
+  required float hot_vol_ml = 1;
+  required float cold_vol_ml = 2;
+  required float pwm = 3;
+  required uint32 time_ms = 4; 
+}
+
+message PistonPwmArg {
+  required float pwm = 1;
+  required PISTON_DIRECTION direction = 2;
+}
+
+message SweepArg {
+  required SWEEP mode = 1;
+  required uint32 timeout_ms = 2;
+}
+
+message Instruction {
+  required INSTRUCTIONS inst_id = 1;
+  oneof arguments {
+    uint32 arg_id = 3;
+    float piston_setpoint = 4;
+    uint32 valves_bitmask = 5;
+    LoopArg loop_args = 6;
+    GrinderArg grinder_args = 7;
+    float pwm = 8;
+    uint32 time_ms = 9;
+    float volume_ml = 10;
+    WaitForArg wait_args = 11;
+    PumpArg pump_args = 12;
+    uint32 no_arg = 13;
+    PistonPwmArg piston_pwm_arg = 14;
+    SweepArg sweep_arg = 15;
+    float degrees_c = 16;
+  }
+}
+
+/*
+message InstructionMeta {
+  required string name = 1  [(nanopb).max_size = 20];
+  required uint32 arg_type = 3;
+}
+*/
+
+/*
+message Review {
+  uint32 customer_id = 1;
+  uint32 recipe_id = 2;
+  float rating = 3;
+  string comment = 4 [(nanopb).max_size = 100];
+}
+*/
+message NutritionInfo {
+  required uint32 ingredient_id = 1;
+  required float calories = 2;
+  required float sat_fat_mg = 3;
+  required float trans_fat_mg = 4;
+   required float sugar_mg = 5;
+   required float cholesterol_mg = 6;
+   required float sodium_mg = 7;
+   required float carb_mg = 8;
+   required float fiber_mg = 9;
+   required float protein_mg = 10;
+}
